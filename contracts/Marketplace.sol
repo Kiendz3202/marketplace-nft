@@ -42,6 +42,7 @@ contract Marketplace is ERC721URIStorage, Ownable {
         emit NFTTransfer(currentID, address(0), msg.sender, tokenURI, 0);
     }
 
+    //seller list nft on marketplace
     function listNFT(uint256 tokenID, uint256 price) public {
         require(price > 0, "NFTMarket: price must be greater than 0");
         transferFrom(msg.sender, address(this), tokenID);
@@ -51,21 +52,17 @@ contract Marketplace is ERC721URIStorage, Ownable {
 
     function buyNFT(uint256 tokenID, uint256 _price) public payable {
         NFTListing memory listing = _listings[tokenID];
+
         require(listing.price > 0, "NFTMarket: nft not listed for sale");
         require(_price == listing.price, "NFTMarket: incorrect price");
+
         ERC721(address(this)).transferFrom(address(this), msg.sender, tokenID);
         clearListing(tokenID);
-        // payable(listing.seller).transfer(listing.price.mul(95).div(100));
-        wanakaToken.approve(address(this), 1000000 * 10**18);
-        // wanakaToken.transferFrom(
-        //     msg.sender,
-        //     listing.seller,
-        //     listing.price.mul(95).div(100)
-        // );
-        for (uint i = 0; i <= 1; i++) {
-            // _total_value -= amnts[i];
 
-            // withdraw(addrs[i], amnts[i]);
+        wanakaToken.approve(address(this), 1000000 * 10**18);
+
+        //token from buyer send 95% to seller and 5% to marketplace contract
+        for (uint i = 0; i <= 1; i++) {
             if (i == 0) {
                 wanakaToken.transferFrom(
                     msg.sender,
@@ -83,6 +80,7 @@ contract Marketplace is ERC721URIStorage, Ownable {
         emit NFTTransfer(tokenID, address(this), msg.sender, "", 0);
     }
 
+    //seller cancel nft that is listed in marketplace
     function cancelListing(uint256 tokenID) public {
         NFTListing memory listing = _listings[tokenID];
         require(listing.price > 0, "NFTMarket: nft not listed for sale");
@@ -95,6 +93,7 @@ contract Marketplace is ERC721URIStorage, Ownable {
         emit NFTTransfer(tokenID, address(this), msg.sender, "", 0);
     }
 
+    //withdraw all token from marketplace contract to marketplace's signer
     function withdrawFunds() public onlyOwner {
         uint256 balance = wanakaToken.balanceOf(address(this));
         require(balance > 0, "NFTMarket: balance is zero");

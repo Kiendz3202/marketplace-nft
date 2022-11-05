@@ -13,7 +13,7 @@ describe('NFTMarket', () => {
 		WANA = await TokenContract.deploy();
 		await WANA.deployed();
 
-		// Deploy the NFTMarket contract
+		// Deploy the Marketplace contract
 		const NFTMarket = await ethers.getContractFactory('Marketplace');
 		nftMarket = await NFTMarket.deploy(WANA.address);
 		await nftMarket.deployed();
